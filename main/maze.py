@@ -5,6 +5,7 @@ BLOCKED = 1
 PATH = 2
 START = 3
 END = 4
+FINAL_PATH = 5
 
 
 class Maze:
@@ -55,6 +56,6 @@ class Maze:
     def clearPath(self):
         for i in range(self.rows):
             for j in range(self.cols):
-                if self.state[i][j] == PATH:
+                if self.state[i][j] == PATH or self.state[i][j] == FINAL_PATH:
                     self.state[i][j] = EMPTY
 

@@ -5,6 +5,7 @@ import math
 from main import maze as mz, button as btn, algorithms as algo
 
 pygame.init()
+pygame.display.set_caption("Pathfinding Algorithm Visualization")
 size = width, height = 600, 800
 gridSize = gridWidth, gridHeight = 480, 600
 xOffset = (width - gridWidth) // 2
@@ -22,9 +23,9 @@ ORANGE = (255, 100, 100)
 RED = (255, 60, 30)
 GREEN = (45, 255, 20)
 BLUE = (90, 10, 255)
-
+YELLOW = (210,205,10)
 # Cell-color correspondence
-colors = [BLACK, BLUE, ORANGE, GREEN, RED]
+colors = [BLACK, BLUE, ORANGE, GREEN, RED, YELLOW]
 
 screen = pygame.display.set_mode(size)
 
@@ -118,6 +119,9 @@ def drawMaze():
             flagColor = ORANGE
             flagLabel = "Analyzing"
         elif analyzer.flag == algo.SUCCESS:
+            countLabel = "Found path length: " + str(analyzer.pathLength)
+            stateLabel = smallFont.render(countLabel, True, GREEN)
+            screen.blit(stateLabel, (300, 30))
             flagColor = GREEN
             flagLabel = "Success!"
         else:
@@ -129,6 +133,7 @@ def drawMaze():
         countLabel = "Visited nodes: " + str(analyzer.visitCount)
         stateLabel = smallFont.render(countLabel, True, WHITE)
         screen.blit(stateLabel, (50, 40))
+
 
 
 while True:

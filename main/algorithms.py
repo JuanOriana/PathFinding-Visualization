@@ -9,7 +9,7 @@ ANALYZING = 1
 SUCCESS = 2
 FAILURE = 3
 
-neighbourIncs = [(0, 1), (1,1), (1, 0), (1,-1), (0, -1), (-1,-1), (-1, 0), (-1,1)]
+neighbourIncs = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
 
 
 class PathFindingAlgo(ABC):
@@ -18,11 +18,22 @@ class PathFindingAlgo(ABC):
         self.flag = INACTIVE
         self.visitCount = 0
         self.maze = None
+        self.parent = None
+        self.pathLength = 0
 
     def setup(self, maze):
         pass
 
     def nextStep(self):
+        pass
+
+    def recoverPath(self):
+        self.pathLength = 1
+        nextCell = self.parent[self.maze.end]
+        while nextCell != self.maze.start:
+            self.maze.state[nextCell[0]][nextCell[1]] = mz.FINAL_PATH
+            nextCell = self.parent[nextCell]
+            self.pathLength += 1
         pass
 
 
@@ -36,7 +47,9 @@ class BFSAlgo(PathFindingAlgo):
     def setup(self, maze):
         self.flag = ANALYZING
         self.visitCount = 0
+        self.pathLength = 0
         self.maze = maze
+        self.parent = {}
         self.visited = np.zeros((maze.rows, maze.cols), dtype=bool)
         self.queue = [maze.start]
         self.visited[maze.start[0]][maze.start[1]] = True
@@ -54,6 +67,7 @@ class BFSAlgo(PathFindingAlgo):
         if currCell == mz.END:
             self.visitCount += 1
             self.flag = SUCCESS
+            self.recoverPath()
             return
 
         elif currCell != mz.START:
@@ -66,6 +80,7 @@ class BFSAlgo(PathFindingAlgo):
                     self.maze.state[newPos[0]][newPos[1]] != mz.BLOCKED:
                 self.visited[newPos[0]][newPos[1]] = True
                 self.queue.append(newPos)
+                self.parent[newPos] = curr
 
 
 class DFSAlgo(PathFindingAlgo):
@@ -78,7 +93,9 @@ class DFSAlgo(PathFindingAlgo):
     def setup(self, maze):
         self.flag = ANALYZING
         self.visitCount = 0
+        self.pathLength = 0
         self.maze = maze
+        self.parent = {}
         self.stack = [maze.start]
         self.visited = set()
         self.visited.add(maze.start)
@@ -93,9 +110,11 @@ class DFSAlgo(PathFindingAlgo):
 
         curr = self.stack.pop()
         currCell = self.maze.state[curr[0]][curr[1]]
+
         if currCell == mz.END:
             self.visitCount += 1
             self.flag = SUCCESS
+            self.recoverPath()
             return
 
         elif currCell != mz.START:
@@ -108,6 +127,7 @@ class DFSAlgo(PathFindingAlgo):
                 newPos[1]] != mz.BLOCKED:
                 self.visited.add(newPos)
                 self.stack.append(newPos)
+                self.parent[newPos] = curr
 
 
 class AStarAlgo(PathFindingAlgo):
@@ -116,25 +136,26 @@ class AStarAlgo(PathFindingAlgo):
         super().__init__()
         self.g = {}  # Distance to start
         self.f = {}  # Total cost
-        self.parents = {}
+        self.parent = {}
         self.count = 0  # tie breaker
         self.open = PriorityQueue()
         self.openHash = set()  # PriorityQueue doesnt allow me to check for an element easily
 
     # heuristic
     def h(self, pointA, pointB):
-        return  math.sqrt(math.pow(pointA[0] - pointB[0],2) + math.pow(pointA[1] - pointB[1],2))
+        return math.sqrt(math.pow(pointA[0] - pointB[0], 2) + math.pow(pointA[1] - pointB[1], 2))
 
     def setup(self, maze):
         self.flag = ANALYZING
         self.visitCount = 0
         self.count = 0
+        self.pathLength = 0
         self.maze = maze
         self.open = PriorityQueue()
         self.openHash = set()
         self.g = {}
         self.f = {}
-        self.parents = {}
+        self.parent = {}
 
         self.open.put((0, self.count, maze.start))
         self.openHash.add(maze.start)
@@ -160,6 +181,7 @@ class AStarAlgo(PathFindingAlgo):
         if currCell == mz.END:
             self.visitCount += 1
             self.flag = SUCCESS
+            self.recoverPath()
             return
 
         elif currCell != mz.START:
@@ -171,12 +193,10 @@ class AStarAlgo(PathFindingAlgo):
             if self.maze.inBounds(newPos[0], newPos[1]) and self.maze.state[newPos[0]][newPos[1]] != mz.BLOCKED:
                 tempG = self.g[curr] + 1
                 if tempG < self.g[newPos]:
-                    self.parents[newPos] = curr
+                    self.parent[newPos] = curr
                     self.g[newPos] = tempG
                     self.f[newPos] = tempG + self.h(newPos, self.maze.end)
                     if newPos not in self.openHash:
                         self.count += 1
                         self.open.put((self.f[newPos], self.count, newPos))
                         self.openHash.add(newPos)
-
-
