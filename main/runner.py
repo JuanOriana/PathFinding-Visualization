@@ -106,7 +106,7 @@ while True:
             if buttonClear.collides(mouse):
                 maze = mz.Maze(X_CELL, Y_CELL)
             if buttonCalculate.collides(mouse):
-                anal = algo.BFSAlgo()
+                anal = algo.DFSAlgo()
                 maze.clearPath()
                 anal.setup(maze)
                 while anal.flag == algo.ANALYZING:
