@@ -57,6 +57,8 @@ def untoggleAll(buttons):
 def drawButtons():
     for button in cellButtons:
         button.draw(screen)
+    for button in algoButtons:
+        button.draw(screen)
     buttonCalculate.draw(screen)
     buttonClear.draw(screen)
 
@@ -77,18 +79,31 @@ def drawMaze():
 
 buttonSize = buttonWidth, buttonHeight = 80, 30
 buttonCalculate = btn.Button(460, 70, buttonWidth, buttonHeight, GREEN, smallFont.render('Calculate!', True, BLACK))
+buttonClear = btn.Button(460, 750, buttonWidth, buttonHeight, WHITE, smallFont.render("Clear", True, BLACK))
+
 buttonStart = btn.Button(60, 750, buttonWidth, buttonHeight, GREEN, smallFont.render('Start', True, BLACK))
 buttonEnd = btn.Button(150, 750, buttonWidth, buttonHeight, RED, smallFont.render("End", True, BLACK))
 buttonBlock = btn.Button(240, 750, buttonWidth, buttonHeight, BLUE, smallFont.render("Block", True, WHITE))
 buttonErase = btn.Button(330, 750, buttonWidth, buttonHeight, GREY, smallFont.render("Erase", True, BLACK))
-buttonClear = btn.Button(460, 750, buttonWidth, buttonHeight, WHITE, smallFont.render("Clear", True, BLACK))
+
+buttonBFS = btn.Button(60, 70, buttonWidth, buttonHeight, ORANGE, smallFont.render("BFS", True, BLACK))
+buttonDFS = btn.Button(150, 70, buttonWidth, buttonHeight, ORANGE, smallFont.render("DFS", True, BLACK))
+buttonAStar = btn.Button(240, 70, buttonWidth, buttonHeight, ORANGE, smallFont.render("A-Star", True, BLACK))
+
 cellButtons = {
     buttonStart: 3,
     buttonEnd: 4,
     buttonBlock: 1,
     buttonErase: 0
 }
+algoButtons = {
+    buttonBFS: algo.BFSAlgo(),
+    buttonDFS: algo.DFSAlgo(),
+    buttonAStar: algo.AStarAlgo()
+}
+
 buttonBlock.toggle()
+buttonBFS.toggle()
 drawButtons()
 
 while True:
@@ -98,19 +113,27 @@ while True:
             sys.exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse = pygame.mouse.get_pos()
+            # Redundant code!
             for button in cellButtons.keys():
                 if button.collides(mouse):
                     untoggleAll(cellButtons.keys())
                     button.toggle()
                     drawButtons()
+            for button in algoButtons.keys():
+                if button.collides(mouse):
+                    untoggleAll(algoButtons.keys())
+                    button.toggle()
+                    drawButtons()
             if buttonClear.collides(mouse):
                 maze = mz.Maze(X_CELL, Y_CELL)
             if buttonCalculate.collides(mouse):
-                anal = algo.AStarAlgo()
+                for button in algoButtons.keys():
+                    if button.pressed:
+                        analyzer = algoButtons[button]
                 maze.clearPath()
-                anal.setup(maze)
-                while anal.flag == algo.ANALYZING:
-                    anal.nextStep()
+                analyzer.setup(maze)
+                while analyzer.flag == algo.ANALYZING:
+                    analyzer.nextStep()
                     drawMaze()
                     pygame.display.flip()
 
@@ -124,12 +147,12 @@ while True:
             for button in cellButtons.keys():
                 if button.pressed:
                     cell = cellButtons[button]
-                    maze.setCell(cellX, cellY, cell)
-                    #Add and remove in chunks of 4
-                    if cell == mz.BLOCKED or cell == mz.EMPTY:
-                        maze.setCell(cellX+1, cellY, cell)
-                        maze.setCell(cellX, cellY+1, cell)
-                        maze.setCell(cellX+1, cellY+1, cell)
+            maze.setCell(cellX, cellY, cell)
+            #Add and remove in chunks of 4
+            if cell == mz.BLOCKED or cell == mz.EMPTY:
+                maze.setCell(cellX+1, cellY, cell)
+                maze.setCell(cellX, cellY+1, cell)
+                maze.setCell(cellX+1, cellY+1, cell)
 
     drawMaze()
     pygame.display.flip()
