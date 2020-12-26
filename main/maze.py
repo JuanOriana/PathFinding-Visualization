@@ -51,3 +51,10 @@ class Maze:
             self.state[self.end[0]][self.end[1]] = EMPTY
             self.state[newEnd[0]][newEnd[1]] = END
             self.end = newEnd
+
+    def clearPath(self):
+        for i in range(self.rows):
+            for j in range(self.cols):
+                if self.state[i][j] == PATH:
+                    self.state[i][j] = EMPTY
+
