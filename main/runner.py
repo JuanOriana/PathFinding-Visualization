@@ -123,7 +123,13 @@ while True:
             cellY = (mouse[1] - 125) // CELL_SIZE
             for button in cellButtons.keys():
                 if button.pressed:
-                    maze.setCell(cellX, cellY, cellButtons[button])
+                    cell = cellButtons[button]
+                    maze.setCell(cellX, cellY, cell)
+                    #Add and remove in chunks of 4
+                    if cell == mz.BLOCKED or cell == mz.EMPTY:
+                        maze.setCell(cellX+1, cellY, cell)
+                        maze.setCell(cellX, cellY+1, cell)
+                        maze.setCell(cellX+1, cellY+1, cell)
 
     drawMaze()
     pygame.display.flip()

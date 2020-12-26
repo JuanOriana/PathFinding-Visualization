@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 from main import maze as mz
+import math
 from queue import PriorityQueue
 
 INACTIVE = 0
@@ -117,8 +118,8 @@ class AStarAlgo(PathFindingAlgo):
         self.openHash = set()  # PriorityQueue doesnt allow me to check for an element easily
 
     # heuristic
-    def manhattanDist(self, pointA, pointB):
-        return abs(pointA[0] - pointB[0]) + abs(pointA[1] - pointB[1])
+    def h(self, pointA, pointB):
+        return  math.sqrt(math.pow(pointA[0] - pointB[0],2) + math.pow(pointA[1] - pointB[1],2))
 
     def setup(self, maze):
         self.flag = ANALYZING
@@ -138,7 +139,7 @@ class AStarAlgo(PathFindingAlgo):
                 self.g[(i, j)] = float("inf")
                 self.f[(i, j)] = float("inf")
         self.g[maze.start] = 0
-        self.f[maze.start] = self.manhattanDist(maze.start, maze.end)
+        self.f[maze.start] = self.h(maze.start, maze.end)
 
     def nextStep(self):
         if self.flag != ANALYZING:
@@ -166,7 +167,7 @@ class AStarAlgo(PathFindingAlgo):
                 if tempG < self.g[newPos]:
                     self.parents[newPos] = curr
                     self.g[newPos] = tempG
-                    self.f[newPos] = tempG + self.manhattanDist(newPos, self.maze.end)
+                    self.f[newPos] = tempG + self.h(newPos, self.maze.end)
                     if newPos not in self.openHash:
                         self.count += 1
                         self.open.put((self.f[newPos], self.count, newPos))
