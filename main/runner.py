@@ -63,20 +63,6 @@ def drawButtons():
     buttonClear.draw(screen)
 
 
-def drawMaze():
-    for i in range(X_CELL):
-        for j in range(Y_CELL):
-            cell = maze.getCell(i, j)
-            cellColor = colors[cell]
-            # Paths change color as they get further from start
-            if cell == mz.PATH:
-                dist = math.floor(math.sqrt(math.pow(maze.start[0] - i, 2) + math.pow(maze.start[1] - j, 2))) * 5
-                cellColor = (cellColor[0] - dist, cellColor[1] + dist // 5, cellColor[2] + dist // 1.5)
-            pygame.draw.rect(screen, cellColor, (xOffset + i * CELL_SIZE, 125 + j * CELL_SIZE, CELL_SIZE, CELL_SIZE))
-            pygame.draw.rect(screen, WHITE, (xOffset + i * CELL_SIZE, 125 + j * CELL_SIZE, CELL_SIZE, CELL_SIZE),
-                             width=1)
-
-
 buttonSize = buttonWidth, buttonHeight = 80, 30
 buttonCalculate = btn.Button(460, 70, buttonWidth, buttonHeight, GREEN, smallFont.render('Calculate!', True, BLACK))
 buttonClear = btn.Button(460, 750, buttonWidth, buttonHeight, WHITE, smallFont.render("Clear", True, BLACK))
@@ -104,7 +90,46 @@ algoButtons = {
 
 buttonBlock.toggle()
 buttonBFS.toggle()
+analyzer = algoButtons[buttonBFS]
 drawButtons()
+
+
+def drawMaze():
+    # Maze
+    for i in range(X_CELL):
+        for j in range(Y_CELL):
+            cell = maze.getCell(i, j)
+            cellColor = colors[cell]
+            # Paths change color as they get further from start
+            if cell == mz.PATH:
+                dist = math.floor(math.sqrt(math.pow(maze.start[0] - i, 2) + math.pow(maze.start[1] - j, 2))) * 5
+                cellColor = (cellColor[0] - dist, cellColor[1] + dist // 5, cellColor[2] + dist // 1.5)
+            pygame.draw.rect(screen, cellColor, (xOffset + i * CELL_SIZE, 125 + j * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+            pygame.draw.rect(screen, WHITE, (xOffset + i * CELL_SIZE, 125 + j * CELL_SIZE, CELL_SIZE, CELL_SIZE),
+                             width=1)
+
+    # Analyzer flags
+    if analyzer.flag != algo.INACTIVE:
+        # Erase old labels
+        pygame.draw.rect(screen, BLACK, (0, 0 , 600, 60))
+        stateLabel = smallFont.render("Current state :", True, WHITE)
+        screen.blit(stateLabel, (50, 20))
+        if analyzer.flag == algo.ANALYZING:
+            flagColor = ORANGE
+            flagLabel = "Analyzing"
+        elif analyzer.flag == algo.SUCCESS:
+            flagColor = GREEN
+            flagLabel = "Success!"
+        else:
+            flagColor = RED
+            flagLabel = "Failed to find path"
+        stateLabel = smallFont.render(flagLabel, True, flagColor)
+        screen.blit(stateLabel, (150, 20))
+
+        countLabel = "Visited nodes: " + str(analyzer.visitCount)
+        stateLabel = smallFont.render(countLabel, True, WHITE)
+        screen.blit(stateLabel, (50, 40))
+
 
 while True:
 
@@ -128,6 +153,7 @@ while True:
                 maze = mz.Maze(X_CELL, Y_CELL)
             if buttonCalculate.collides(mouse):
                 for button in algoButtons.keys():
+                    algoButtons[button].flag = algo.INACTIVE
                     if button.pressed:
                         analyzer = algoButtons[button]
                 maze.clearPath()
@@ -148,11 +174,11 @@ while True:
                 if button.pressed:
                     cell = cellButtons[button]
             maze.setCell(cellX, cellY, cell)
-            #Add and remove in chunks of 4
+            # Add and remove in chunks of 4
             if cell == mz.BLOCKED or cell == mz.EMPTY:
-                maze.setCell(cellX+1, cellY, cell)
-                maze.setCell(cellX, cellY+1, cell)
-                maze.setCell(cellX+1, cellY+1, cell)
+                maze.setCell(cellX + 1, cellY, cell)
+                maze.setCell(cellX, cellY + 1, cell)
+                maze.setCell(cellX + 1, cellY + 1, cell)
 
     drawMaze()
     pygame.display.flip()

@@ -52,10 +52,12 @@ class BFSAlgo(PathFindingAlgo):
         curr = self.queue.pop(0)
         currCell = self.maze.state[curr[0]][curr[1]]
         if currCell == mz.END:
+            self.visitCount += 1
             self.flag = SUCCESS
             return
 
         elif currCell != mz.START:
+            self.visitCount += 1
             self.maze.state[curr[0]][curr[1]] = mz.PATH
 
         for inc in neighbourIncs:
@@ -92,10 +94,12 @@ class DFSAlgo(PathFindingAlgo):
         curr = self.stack.pop()
         currCell = self.maze.state[curr[0]][curr[1]]
         if currCell == mz.END:
+            self.visitCount += 1
             self.flag = SUCCESS
             return
 
         elif currCell != mz.START:
+            self.visitCount += 1
             self.maze.state[curr[0]][curr[1]] = mz.PATH
 
         for inc in neighbourIncs:
@@ -154,10 +158,12 @@ class AStarAlgo(PathFindingAlgo):
         currCell = self.maze.state[curr[0]][curr[1]]
 
         if currCell == mz.END:
+            self.visitCount += 1
             self.flag = SUCCESS
             return
 
         elif currCell != mz.START:
+            self.visitCount += 1
             self.maze.state[curr[0]][curr[1]] = mz.PATH
 
         for inc in neighbourIncs:
