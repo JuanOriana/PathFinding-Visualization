@@ -144,7 +144,7 @@ class AStarAlgo(PathFindingAlgo):
         if self.flag != ANALYZING:
             raise Exception()
         # Empty queue during analysis implies no found solution
-        if not self.open:
+        if not self.openHash:
             self.flag = FAILURE
             return
 
