@@ -83,8 +83,6 @@ class Maze:
 
     def fillBlocks(self):
         self.state = np.ones((self.rows, self.cols), dtype=int)
-        self.state[self.start[0]][self.start[1]] = START
-        self.state[self.end[0]][self.end[1]] = END
 
     def generateMaze(self):
         self.fillBlocks()
@@ -107,3 +105,6 @@ class Maze:
                     frontiers.append([i + 1, j, i + 2, j])
                 if j < self.cols - 2 and self.state[i][j + 2] == BLOCKED:
                     frontiers.append([i, j + 1, i, j + 2])
+
+        self.state[self.start[0]][self.start[1]] = START
+        self.state[self.end[0]][self.end[1]] = END
