@@ -119,25 +119,25 @@ def drawMaze(maze):
         # Erase old labels
         pygame.draw.rect(screen, BLACK, (0, 0, 600, 60))
         stateLabel = smallFont.render("Current state :", True, WHITE)
-        screen.blit(stateLabel, (50, 20))
+        screen.blit(stateLabel, (100, 20))
         if analyzer.flag == algo.ANALYZING:
             flagColor = ORANGE
             flagLabel = "Analyzing"
         elif analyzer.flag == algo.SUCCESS:
             countLabel = "Found path length: " + str(analyzer.pathLength)
             stateLabel = smallFont.render(countLabel, True, GREEN)
-            screen.blit(stateLabel, (300, 30))
+            screen.blit(stateLabel, (350, 30))
             flagColor = GREEN
             flagLabel = "Success!"
         else:
             flagColor = RED
             flagLabel = "Failed to find path"
         stateLabel = smallFont.render(flagLabel, True, flagColor)
-        screen.blit(stateLabel, (150, 20))
+        screen.blit(stateLabel, (200, 20))
 
         countLabel = "Visited nodes: " + str(analyzer.visitCount)
         stateLabel = smallFont.render(countLabel, True, WHITE)
-        screen.blit(stateLabel, (50, 40))
+        screen.blit(stateLabel, (100, 40))
 
 
 while True:
@@ -161,7 +161,7 @@ while True:
             if buttonClear.collides(mouse):
                 maze.initMaze()
             if buttonRandom.collides(mouse):
-                maze.randMaze(RAND_TOLERANCE)
+                maze.generateMaze()
             if buttonCalculate.collides(mouse):
                 for button in algoButtons.keys():
                     algoButtons[button].flag = algo.INACTIVE

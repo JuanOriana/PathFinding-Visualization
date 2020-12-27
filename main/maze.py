@@ -8,6 +8,9 @@ START = 3
 END = 4
 FINAL_PATH = 5
 
+HORIZONTAL = S = 0
+VERTICAL = E = 1
+
 
 class Maze:
     def __init__(self, rows, cols):
@@ -60,10 +63,47 @@ class Maze:
                 if self.state[i][j] == PATH or self.state[i][j] == FINAL_PATH:
                     self.state[i][j] = EMPTY
 
-    def randMaze(self,threshold):
+    def randMaze(self, threshold):
         self.initMaze()
         for i in range(self.rows):
             for j in range(self.cols):
                 currCell = self.getCell(i, j)
                 if currCell != START and currCell != END and rand.random() < threshold:
                     self.setCell(i, j, BLOCKED)
+
+    def chooseOrientation(self, rows, cols):
+        if cols < rows:
+            return HORIZONTAL
+        elif rows == cols:
+            det = rand.random()
+            if det < 0.5:
+                return HORIZONTAL
+        # if rows < width or height==width and has been randomly selected
+        return VERTICAL
+
+    def fillBlocks(self):
+        self.state = np.ones((self.rows, self.cols), dtype=int)
+        self.state[self.start[0]][self.start[1]] = START
+        self.state[self.end[0]][self.end[1]] = END
+
+    def generateMaze(self):
+        self.fillBlocks()
+        frontiers = []
+        i = rand.randint(0, self.rows - 1)
+        j = rand.randint(0, self.cols - 1)
+        frontiers.append([i, j, i, j])
+
+        while frontiers:
+            front = frontiers.pop(rand.randint(0, len(frontiers) - 1))
+            i = front[2]
+            j = front[3]
+            if self.state[i][j] == BLOCKED:
+                self.state[front[0]][front[1]] = self.state[i][j] = EMPTY
+                if i >= 2 and self.state[i - 2][j] == BLOCKED:
+                    frontiers.append([i - 1, j, i - 2, j])
+                if j >= 2 and self.state[i][j - 2] == BLOCKED:
+                    frontiers.append([i, j - 1, i, j - 2])
+                if i < self.rows - 2 and self.state[i + 2][j] == BLOCKED:
+                    frontiers.append([i + 1, j, i + 2, j])
+                if j < self.cols - 2 and self.state[i][j + 2] == BLOCKED:
+                    frontiers.append([i, j + 1, i, j + 2])
