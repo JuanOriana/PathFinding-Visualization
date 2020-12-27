@@ -1,19 +1,21 @@
 import pygame
 import sys
 import math
+import random
 
 from main import maze as mz, button as btn, algorithms as algo
 
 pygame.init()
 pygame.display.set_caption("Pathfinding Algorithm Visualization")
-size = width, height = 600, 800
-gridSize = gridWidth, gridHeight = 480, 600
+size = width, height = 1000, 800
+gridSize = gridWidth, gridHeight = 800, 600
 xOffset = (width - gridWidth) // 2
 
 # cell
 CELL_SIZE = 20
 X_CELL = gridWidth // CELL_SIZE
 Y_CELL = gridHeight // CELL_SIZE
+RAND_TOLERANCE = 0.3
 
 # Colors
 BLACK = (0, 0, 0)
@@ -23,7 +25,7 @@ ORANGE = (255, 100, 100)
 RED = (255, 60, 30)
 GREEN = (45, 255, 20)
 BLUE = (90, 10, 255)
-YELLOW = (210,205,10)
+YELLOW = (210, 205, 10)
 # Cell-color correspondence
 colors = [BLACK, BLUE, ORANGE, GREEN, RED, YELLOW]
 
@@ -62,20 +64,22 @@ def drawButtons():
         button.draw(screen)
     buttonCalculate.draw(screen)
     buttonClear.draw(screen)
+    buttonRandom.draw(screen)
 
 
 buttonSize = buttonWidth, buttonHeight = 80, 30
-buttonCalculate = btn.Button(460, 70, buttonWidth, buttonHeight, GREEN, smallFont.render('Calculate!', True, BLACK))
-buttonClear = btn.Button(460, 750, buttonWidth, buttonHeight, WHITE, smallFont.render("Clear", True, BLACK))
+buttonCalculate = btn.Button(820, 70, buttonWidth, buttonHeight, GREEN, smallFont.render('Calculate!', True, BLACK))
+buttonClear = btn.Button(820, 750, buttonWidth, buttonHeight, WHITE, smallFont.render("Clear", True, BLACK))
+buttonRandom = btn.Button(730, 750, buttonWidth, buttonHeight, BLUE, smallFont.render("Random!", True, WHITE))
 
-buttonStart = btn.Button(60, 750, buttonWidth, buttonHeight, GREEN, smallFont.render('Start', True, BLACK))
-buttonEnd = btn.Button(150, 750, buttonWidth, buttonHeight, RED, smallFont.render("End", True, BLACK))
-buttonBlock = btn.Button(240, 750, buttonWidth, buttonHeight, BLUE, smallFont.render("Block", True, WHITE))
-buttonErase = btn.Button(330, 750, buttonWidth, buttonHeight, GREY, smallFont.render("Erase", True, BLACK))
+buttonStart = btn.Button(100, 750, buttonWidth, buttonHeight, GREEN, smallFont.render('Start', True, BLACK))
+buttonEnd = btn.Button(190, 750, buttonWidth, buttonHeight, RED, smallFont.render("End", True, BLACK))
+buttonBlock = btn.Button(280, 750, buttonWidth, buttonHeight, BLUE, smallFont.render("Block", True, WHITE))
+buttonErase = btn.Button(370, 750, buttonWidth, buttonHeight, GREY, smallFont.render("Erase", True, BLACK))
 
-buttonBFS = btn.Button(60, 70, buttonWidth, buttonHeight, ORANGE, smallFont.render("BFS", True, BLACK))
-buttonDFS = btn.Button(150, 70, buttonWidth, buttonHeight, ORANGE, smallFont.render("DFS", True, BLACK))
-buttonAStar = btn.Button(240, 70, buttonWidth, buttonHeight, ORANGE, smallFont.render("A-Star", True, BLACK))
+buttonBFS = btn.Button(100, 70, buttonWidth, buttonHeight, ORANGE, smallFont.render("BFS", True, BLACK))
+buttonDFS = btn.Button(190, 70, buttonWidth, buttonHeight, ORANGE, smallFont.render("DFS", True, BLACK))
+buttonAStar = btn.Button(280, 70, buttonWidth, buttonHeight, ORANGE, smallFont.render("A-Star", True, BLACK))
 
 cellButtons = {
     buttonStart: 3,
@@ -95,7 +99,8 @@ analyzer = algoButtons[buttonBFS]
 drawButtons()
 
 
-def drawMaze():
+
+def drawMaze(maze):
     # Maze
     for i in range(X_CELL):
         for j in range(Y_CELL):
@@ -104,7 +109,7 @@ def drawMaze():
             # Paths change color as they get further from start
             if cell == mz.PATH:
                 dist = math.floor(math.sqrt(math.pow(maze.start[0] - i, 2) + math.pow(maze.start[1] - j, 2))) * 5
-                cellColor = (cellColor[0] - dist, cellColor[1] + dist // 5, cellColor[2] + dist // 1.5)
+                cellColor = (cellColor[0] - abs(dist * 0.8), cellColor[1] + dist // 5, cellColor[2] + dist // 2)
             pygame.draw.rect(screen, cellColor, (xOffset + i * CELL_SIZE, 125 + j * CELL_SIZE, CELL_SIZE, CELL_SIZE))
             pygame.draw.rect(screen, WHITE, (xOffset + i * CELL_SIZE, 125 + j * CELL_SIZE, CELL_SIZE, CELL_SIZE),
                              width=1)
@@ -112,7 +117,7 @@ def drawMaze():
     # Analyzer flags
     if analyzer.flag != algo.INACTIVE:
         # Erase old labels
-        pygame.draw.rect(screen, BLACK, (0, 0 , 600, 60))
+        pygame.draw.rect(screen, BLACK, (0, 0, 600, 60))
         stateLabel = smallFont.render("Current state :", True, WHITE)
         screen.blit(stateLabel, (50, 20))
         if analyzer.flag == algo.ANALYZING:
@@ -135,7 +140,6 @@ def drawMaze():
         screen.blit(stateLabel, (50, 40))
 
 
-
 while True:
 
     for event in pygame.event.get():
@@ -155,7 +159,9 @@ while True:
                     button.toggle()
                     drawButtons()
             if buttonClear.collides(mouse):
-                maze = mz.Maze(X_CELL, Y_CELL)
+                maze.initMaze()
+            if buttonRandom.collides(mouse):
+                maze.randMaze(RAND_TOLERANCE)
             if buttonCalculate.collides(mouse):
                 for button in algoButtons.keys():
                     algoButtons[button].flag = algo.INACTIVE
@@ -165,7 +171,7 @@ while True:
                 analyzer.setup(maze)
                 while analyzer.flag == algo.ANALYZING:
                     analyzer.nextStep()
-                    drawMaze()
+                    drawMaze(maze)
                     pygame.display.flip()
 
     # Not using event.get() allows for dragging
@@ -185,5 +191,5 @@ while True:
                 maze.setCell(cellX, cellY + 1, cell)
                 maze.setCell(cellX + 1, cellY + 1, cell)
 
-    drawMaze()
+    drawMaze(maze)
     pygame.display.flip()

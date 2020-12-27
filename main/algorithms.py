@@ -9,7 +9,7 @@ ANALYZING = 1
 SUCCESS = 2
 FAILURE = 3
 
-neighbourIncs = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
+neighbourIncs = [(1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1), (0, 1), (1, 1)]
 
 
 class PathFindingAlgo(ABC):
@@ -135,7 +135,7 @@ class AStarAlgo(PathFindingAlgo):
     def __init__(self):
         super().__init__()
         self.g = {}  # Distance to start
-        self.f = {}  # Total cost
+        self.f = {}  # Total cost  f = g + h
         self.parent = {}
         self.count = 0  # tie breaker
         self.open = PriorityQueue()

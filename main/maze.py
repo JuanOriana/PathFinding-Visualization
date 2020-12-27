@@ -1,4 +1,5 @@
 import numpy as np
+import random as rand
 
 EMPTY = 0
 BLOCKED = 1
@@ -59,3 +60,10 @@ class Maze:
                 if self.state[i][j] == PATH or self.state[i][j] == FINAL_PATH:
                     self.state[i][j] = EMPTY
 
+    def randMaze(self,threshold):
+        self.initMaze()
+        for i in range(self.rows):
+            for j in range(self.cols):
+                currCell = self.getCell(i, j)
+                if currCell != START and currCell != END and rand.random() < threshold:
+                    self.setCell(i, j, BLOCKED)
