@@ -179,6 +179,7 @@ while True:
     if click == 1:
         mouse = pygame.mouse.get_pos()
         if xOffset <= mouse[0] <= width - xOffset and 125 <= mouse[1] <= 125 + gridHeight:
+            maze.clearPath()
             cellX = (mouse[0] - xOffset) // CELL_SIZE
             cellY = (mouse[1] - 125) // CELL_SIZE
             for button in cellButtons.keys():
